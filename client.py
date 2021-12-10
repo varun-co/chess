@@ -24,14 +24,13 @@ class client_socket:
         self.client.send(message)
     def recv(self):
         # function to recive infomation from the server
-        length = self.client.recv(self.HEADER)
+        length = self.client.recv(self.HEADER).decode(self.FORMAT)
         length = int(length)
         msg = self.client.recv(length)
         return msg
 
     def disconect(self):
         # first send the mode and then the disconnect message
-        self.send('disconect')
         self.send(self.DISCONNECT_MSG)
 def generate_code():
     # function to generate a code to link the two clients togeather
