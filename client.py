@@ -6,7 +6,7 @@ class client_socket:
         self.PORT = 5050
         self.SERVER = socket.gethostbyname(socket.gethostname())
         self.ADDR = (self.SERVER,self.PORT)
-        self.HEADER = 64
+        self.HEADER = 512
         self.FORMAT = 'utf8'
         self.DISCONNECT_MSG = "!DISCONNECT"
         self.client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -25,6 +25,7 @@ class client_socket:
     def recv(self):
         # function to recive infomation from the server
         length = self.client.recv(self.HEADER).decode(self.FORMAT)
+        print(length)
         length = int(length)
         msg = self.client.recv(length)
         return msg

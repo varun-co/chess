@@ -1,12 +1,35 @@
 import pygame
+import time
 import os
 from pieces import *
 import pickle
+import threading
 from client import *
+from player import *
 class borad:
     def draw_borad(self, board_img):
-        self.screen.blit(board_img, (100, 100))
+        # to draw the borad
+        self.screen.blit(board_img, (0,0))
+    def update_pos(self):
+        # to update the values of the objects depending on the chanes in state_table
+        # first we make all piece dead
+        self.player1.destroyer()
+        self.player2.destroyer()
+
+        for i in range(len(self.state_table)):
+            for j in range(len(self.state_table[i])):
+                temp = self.finder((i,j))
+                piece = self.find_piece((i,j))
+                if temp != None:
+                    temp.state = 'alive'
+                    temp.xpos = i
+                    temp.ypos = j
+    def translate(self):
+        # to flip the state table
+        self.state_table = [i[::-1] for i in self.state_table]
+
     def create_state_table(self):
+        # to create the state table
         self.state_table = [['-' for i in range(8)] for j in range(8)]
         self.state_table[0][0] = 'br0'
         self.state_table[1][0] = 'bk0'
@@ -40,8 +63,12 @@ class borad:
         self.state_table[5][6] = 'wp5'
         self.state_table[6][6] = 'wp6'
         self.state_table[7][6] = 'wp7'
-
+        if self.player1.color== 'black':
+            self.translate()
+        self.update_pos()
     def generate_position(self, piece_obj, color):
+
+        # to generate possible states of the foucs piecek
         possible_pos = []
         if type(piece_obj).__name__ == 'pawn':
             if piece_obj.turn == 1 and color == 'white':
@@ -57,251 +84,149 @@ class borad:
             elif color == 'black':
                 possible_pos.append(pos[0], pos[1] + 1)
         return possible_pos
-
-    def find_piece(self, pos, turn):
-        color = 1
-        if turn == 1:
-            color = self.player1.color
+    def get_player(self,color):
+        # get the player object where the color of the player is color
+        if self.player1.color == color:
+            return self.player1
         else:
-            color = self.player2.color
+            return self.player2
 
+    def finder(self,pos):
+
+
+        # will return object depeding upon what the value in the state table
+        # position in pos
         if self.state_table[pos[0]][pos[1]] != '-':
             te = self.state_table[pos[0]][pos[1]]
             temp = None
-            if te[0] == 'w' and color == 'white':
+            if te[0] == 'w':
+                if self.player1.color == 'white':
+                    te2 = self.player1
+                else:
+                    te2 = self.player2
                 if te[1] == 'p':
-                    temp = self.player1.pawn_list[int(te[2])]
+                    temp = te2.pawn_list[int(te[2])]
                 elif te[1] == 'r':
-                    temp = self.player1.rook_list[int(te[2])]
+                    temp = te2.rook_list[int(te[2])]
                 elif te[1] == 'k':
-                    temp = self.player1.knight_list[int(te[2])]
+                    temp = te2.knight_list[int(te[2])]
                 elif te[1] == 'b':
-                    temp = self.player1.bishop_list[int(te[2])]
+                    temp = te2.bishop_list[int(te[2])]
                 elif te[1] == 'q':
-                    temp = self.player1.queen_list[int(te[2])]
+                    temp = te2.queen_list[int(te[2])]
                 elif te[1] == 'K':
-                    temp = self.player1.king
-            if te[0] == 'b' and color == 'black':
+                    temp = te2.king
+            if te[0] == 'b':
+                if self.player1.color == 'black':
+                    te2 = self.player1
+                else:
+                    te2 = self.player2
                 if te[1] == 'p':
-                    temp = self.player2.pawn_list[int(te[2])]
+                    temp = te2.pawn_list[int(te[2])]
                 elif te[1] == 'r':
-                    temp = self.player2.rook_list[int(te[2])]
+                    temp = te2.rook_list[int(te[2])]
                 elif te[1] == 'k':
-                    temp = self.player2.knight_list[int(te[2])]
+                    temp = te2.knight_list[int(te[2])]
                 elif te[1] == 'b':
-                    temp = self.player2.bishop_list[int(te[2])]
+                    temp = te2.bishop_list[int(te[2])]
                 elif te[1] == 'q':
-                    temp = self.player2.queen_list[int(te[2])]
+                    temp = te2.queen_list[int(te[2])]
                 elif te[1] == 'K':
-                    temp = self.player2.king
+                    temp = te2.king
             return temp
-        return temp
+        return None
+    def display(self):
+        # to display the state table
+        for i in self.state_table:
+            print(*i)
+    def find_piece(self, pos):
+        # to find the piece in the state table at given position
+        return self.state_table[pos[0]][pos[1]]
+    def recvieve_state_table(self):
 
-    def __init__(self, player1, player2):
+        # program for reciving the state table
+
+        self.state_table = client_object.recv()
+        self.state_table = pickle.loads(self.state_table)
+        self.translate()
+        self.turn = 1
+    def __init__(self, player1, player2,opt):
         self.player1 = player1
         self.player2 = player2
-        self.focus_piece = None
+        self.opt = opt
+        self.focus_pos = None
         if self.player1.color == 'white':
             self.turn = 1
         else:
             self.turn = 2
         self.create_state_table()
-        running = True
         pygame.init()
-        self.screen = pygame.display.set_mode((1000, 1000))
+        self.screen = pygame.display.set_mode((800, 800))
         running = True
         self.screen.fill((24, 34, 65))
         self.Icon = pygame.image.load(os.path.join('Icon', 'chess_logo.png'))
         pygame.display.set_icon(self.Icon)
-        self.brd = pygame.image.load(os.path.join('Icon', 'chess_board.png'))
+        if self.player1.color == 'white':
+            self.brd = pygame.image.load(os.path.join('Icon', 'chess_board.png'))
+        else:
+            self.brd = pygame.image.load(os.path.join('Icon', 'chess_board_1.png'))
+        print(self.player1.color,self.player2.color)
+        start = False
         while running:
+            pos = None
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                if event.type == pygame.MOUSEBUTTONUP:
+                elif event.type == pygame.MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
-                    pos = (pos[0] // 100) - 1, (pos[1] // 100) - 1
-                    if self.turn == 1:
-                        if self.state_table[pos[0]][pos[1]] != '-':
-                            self.focus_piece = self.find_piece(pos, 1)
-                        else:
-                            if self.focus_piece != None:
-                                self.focus_piece.xpos = pos[0]
-                                self.focus_piece.ypos = pos[1]
-                                self.turn = 2
-                                self.focus_piece = None
-                        '''temp = player1.find_piece(pos[0], pos[1])
-                        if temp == None and self.focus_piece != None:
-                            temp2 = player2.find_piece(pos[0], pos[1])
-                            if temp2 != None:
-                                temp2.state = 'dead'
-                            self.focus_piece.xpos = pos[0]
-                            self.focus_piece.ypos = pos[1]
-                            self.turn = 2
-                            self.focus_piece = None
-                        self.focus_piece = temp
-                        self.generate_position(temp)'''
-                    else:
-                        if self.state_table[pos[0]][pos[1]] != '-':
-                            self.focus_piece = self.find_piece(pos, 2)
-                        else:
-                            if self.focus_piece != None:
-                                self.focus_piece.xpos = pos[0]
-                                self.focus_piece.ypos = pos[1]
-                                self.turn = 1
-                                self.focus_piece = None
-                        '''temp = player2.find_piece(pos[0], pos[1])
-                        if temp == None and self.focus_piece != None:
-                            temp2 = player1.find_piece(pos[0], pos[1])
-                            if temp2 != None:
-                                temp2.state = 'dead'
-                            self.focus_piece.xpos = pos[0]
-                            self.focus_piece.ypos = pos[1]
-                            self.turn = 1
-                            self.focus_piece = None
-                        self.focus_piece = temp'''
-                self.draw_borad(self.brd)
-            player1.draw_pieces(self.screen)
-            player2.draw_pieces(self.screen)
+                    pos = (pos[0] // 100), (pos[1] // 100)
+                    break
+
+            if self.turn == 1 and pos != None:
+                piece = self.find_piece(pos)
+                piece = self.state_table[pos[0]][pos[1]]
+                if piece == '-' and self.focus_pos != None:
+                    # logic for changing the state of
+                    temp = self.find_piece(self.focus_pos)
+                    self.state_table[self.focus_pos[0]][self.focus_pos[1]] = '-'
+                    self.state_table[pos[0]][pos[1]] = temp
+                    data_bytes = pickle.dumps(self.state_table)
+                    client_object.send('send_to_server')
+                    client_object.send(data_bytes)
+                    self.turn = 2
+                    self.focus_pos = None
+                    start = False
+                elif piece[0] == self.player2.color[0] and self.focus_pos != None:
+                    # logic for capturing a piece
+                    self.change_piece_state(pos)
+                    temp = self.find_piece(self.focus_pos)
+                    self.state_table[self.focus_pos[0]][self.focus_pos[1]] = '-'
+                    self.state_table[pos[0]][pos[1]] = temp
+                    data_bytes = pickle.dumps(self.state_table)
+                    client_object.send('send_to_server')
+                    client_object.send(data_bytes)
+                    self.turn = 2
+                    start = False
+                    self.focus_pos = None
+
+                elif piece[0] == self.player1.color[0]:
+                    # logic for changing focus
+                    self.focus_pos = pos
+
+            elif self.turn == 2 and start == False:
+                thread = threading.Thread(target=self.recvieve_state_table)
+                thread.start()
+                start = True
+
+
+
+            self.update_pos()
+            self.draw_borad(self.brd)
+            self.player1.draw_pieces(self.screen)
+            self.player2.draw_pieces(self.screen)
             pygame.display.update()
 
 
-class player:
-    def find_match(self, obj, xpos, ypos):
-        if obj.xpos == xpos and obj.ypos == ypos:
-            return True
-
-    def find_piece(self, xpos, ypos):
-        for i in self.pawn_list:
-            if self.find_match(i, xpos, ypos) and i.state == 'alive':
-                return i
-        for i in self.knight_list:
-            if self.find_match(i, xpos, ypos) and i.state == 'alive':
-                return i
-        for i in self.bishop_list:
-            if self.find_match(i, xpos, ypos) and i.state == 'alive':
-                return i
-        for i in self.rook_list:
-            if self.find_match(i, xpos, ypos) and i.state == 'alive':
-                return i
-        for i in self.queen_list:
-            if self.find_match(i, xpos, ypos) and i.state == 'alive':
-                return i
-        if self.find_match(self.king, xpos, ypos) and i.state == 'alive':
-            return self.king
-        return None
-
-    def maker(self, i, screen):
-        img = pygame.image.load(i.path)
-        screen.blit(img, (i.xpos * 100 + 100, i.ypos * 100 + 100))
-
-    def draw_pieces(self, screen):
-        for i in self.pawn_list:
-            if i.state == 'alive':
-                self.maker(i, screen)
-        for i in self.knight_list:
-            if i.state == 'alive':
-                self.maker(i, screen)
-        for i in self.bishop_list:
-            if i.state == 'alive':
-                self.maker(i, screen)
-        for i in self.rook_list:
-            if i.state == 'alive':
-                self.maker(i, screen)
-        for i in self.queen_list:
-            if i.state == 'alive':
-                self.maker(i, screen)
-        self.maker(self.king, screen)
-
-    def init_white(self):
-        #initalising pawns
-        self.pawn_list = []
-        for i in range(8):
-            self.pawn_list.append(pawn(i, 6, 'white'))
-        #initalising rooks
-        self.rook_list = []
-        self.knight_list = []
-        self.bishop_list = []
-        self.queen_list = []
-        for i in range(2):
-            if i == 0:
-                temp = rook(7, 7, 'white')
-            else:
-                temp = rook(0, 7, 'white')
-            self.rook_list.append(temp)
-        #initailsing knights
-        for i in range(2):
-            if i == 0:
-                temp = knight(6, 7, 'white')
-            else:
-                temp = knight(1, 7, 'white')
-            self.knight_list.append(temp)
-        #intialising bishops
-        for i in range(2):
-            if i == 0:
-                temp = bishop(2, 7, 'white')
-            else:
-                temp = bishop(5, 7, 'white')
-            self.bishop_list.append(temp)
-        #initalising queen
-        self.queen_list = []
-        for i in range(1):
-            temp = queen(3, 7, 'white')
-            self.queen_list.append(temp)
-        #intialising king
-        self.king = king(4, 7, 'white')
-
-    def init_black(self):
-        #initalising pawns
-        self.pawn_list = []
-        for i in range(8):
-            self.pawn_list.append(pawn(i, 1, 'black'))
-        #initalising rooks
-        self.rook_list = []
-        self.knight_list = []
-        self.bishop_list = []
-        self.queen_list = []
-        for i in range(2):
-            if i == 0:
-                temp = rook(0, 0, 'black')
-            else:
-                temp = rook(7, 0, 'black')
-            self.rook_list.append(temp)
-        #initailsing knights
-        for i in range(2):
-            if i == 0:
-                temp = knight(1, 0, 'black')
-            else:
-                temp = knight(6, 0, 'black')
-            self.knight_list.append(temp)
-        #intialising bishops
-        for i in range(2):
-            if i == 0:
-                temp = bishop(2, 0, 'black')
-            else:
-                temp = bishop(5, 0, 'black')
-            self.bishop_list.append(temp)
-        #initalising queen
-        self.queen_list = []
-        for i in range(1):
-            temp = queen(3, 0, 'black')
-            self.queen_list.append(temp)
-        #intialising king
-        self.king = king(4, 0, 'black')
-
-    def __init__(self, name, color):
-        self.name = name
-        self.color = color
-        #intialising the intial position of the pieces
-        if self.color == 'white':
-            self.init_white()
-        else:
-            self.init_black()
-
-
-#inititalise pygame
-p1 = player('varun', 'white')
-p2 = player('kudi', 'black')
 client_object = client_socket()
 myname = input('Enter Player Name:')
 print('[1]. For Creating New Game:')
@@ -330,19 +255,10 @@ elif opt == 2:
     client_object.send(myname)
 print(myname,opp_name)
 print(f'Color of the player is {color}')
-#if opt == 2:
-    #n = int(input('Enter the No of inputs'))
-    #lt = []
-    #for i in range(n):
-        #temp = input()
-        #lt.append(temp)
-    #msg = pickle.dumps(lt)
-    #mode = 'list_send_to_server'.encode(client_object.FORMAT)
-    #client_object.send(mode)
-    #client_object.send(msg)
-#elif opt == 3:
-    #msg = client_object.recv()
-    #msg = pickle.loads(msg)
-    #print(msg)
-#brd = borad(p1, p2)
+myself = player(myname,color)
+if color == 'white':
+    opponent = player(opp_name,'black')
+else:
+    opponent = player(opp_name,'white')
+brd = borad(myself, opponent,opt)
 client_object.disconect()
