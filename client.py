@@ -25,7 +25,6 @@ class client_socket:
     def recv(self):
         # function to recive infomation from the server
         length = self.client.recv(self.HEADER).decode(self.FORMAT)
-        print(length)
         length = int(length)
         msg = self.client.recv(length)
         return msg

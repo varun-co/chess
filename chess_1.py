@@ -66,23 +66,310 @@ class borad:
         if self.player1.color== 'black':
             self.translate()
         self.update_pos()
-    def generate_position(self, piece_obj, color):
+    def generate_position(self, pos, color):
 
         # to generate possible states of the foucs piecek
         possible_pos = []
-        if type(piece_obj).__name__ == 'pawn':
-            if piece_obj.turn == 1 and color == 'white':
-                possible_pos.append(pos[0], pos[1] - 1)
-                possible_pos.append(pos[0], pos[1] - 2)
-                piece_obj.turn = 0
-            elif piece_obj.turn == 1 and color == 'black':
-                possible_pos.append(pos[0], pos[1] + 1)
-                possible_pos.append(pos[0], pos[1] + 2)
-                piece_obj.turn = 0
-            elif color == 'white':
-                possible_pos.append(pos[0], pos[1] - 1)
-            elif color == 'black':
-                possible_pos.append(pos[0], pos[1] + 1)
+        pie = self.find_piece(pos)
+        if pie[1] == 'r':
+            ptr = pos
+            while(ptr[0] < 8):
+                ptr = ptr[0] + 1,ptr[1]
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+            ptr = pos
+            while(ptr[0] > 0):
+
+                ptr = ptr[0] - 1,ptr[1]
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+            ptr = pos
+            while(ptr[1] < 8):
+                ptr = ptr[0],ptr[1] + 1
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+            ptr = pos
+            while(ptr[1] > 0):
+                ptr = ptr[0],ptr[1] - 1
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+        elif pie[1] == 'b':
+            ptr = pos
+            while(ptr[0] < 8 and ptr[1] < 8):
+                ptr = ptr[0] + 1,ptr[1] + 1
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+            ptr = pos
+            while(ptr[0] < 8 and ptr[1] > 0):
+                ptr = ptr[0] + 1,ptr[1] - 1
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+            while(ptr[0] > 0 and ptr[1] < 8):
+                ptr = ptr[0] - 1, ptr[1] + 1
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+
+            while(ptr[0] > 0 and ptr[1] > 0):
+                ptr = ptr[0] - 1,ptr[1] - 1
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+        elif pie[1] == 'q':
+
+            ptr = pos
+            while(ptr[0] < 8):
+                ptr = ptr[0] + 1,ptr[1]
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+            ptr = pos
+            while(ptr[0] > 0):
+
+                ptr = ptr[0] - 1,ptr[1]
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+            ptr = pos
+            while(ptr[1] < 8):
+                ptr = ptr[0],ptr[1] + 1
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+            ptr = pos
+            while(ptr[1] > 0):
+                ptr = ptr[0],ptr[1] - 1
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+            ptr = pos
+            while(ptr[0] < 8 and ptr[1] < 8):
+                ptr = ptr[0] + 1,ptr[1] + 1
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+            ptr = pos
+            while(ptr[0] < 8 and ptr[1] > 0):
+                ptr = ptr[0] + 1,ptr[1] - 1
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+            while(ptr[0] > 0 and ptr[1] < 8):
+                ptr = ptr[0] - 1, ptr[1] + 1
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+
+            while(ptr[0] > 0 and ptr[1] > 0):
+                ptr = ptr[0] - 1,ptr[1] - 1
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
+                elif piece[0] == self.player2.color[0]:
+                    possible_pos.append(ptr)
+                    break
+                else:
+                    break
+        elif pie[1] == 'k':
+            ptr = pos[0] + 2 ,pos[1] + 1
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color[0]:
+                possible_pos.append(ptr)
+            ptr = pos[0] + 2 ,pos[1] -1
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color[0]:
+                possible_pos.append(ptr)
+            ptr = pos[0] -2 ,pos[1] + 1
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color[0]:
+                possible_pos.append(ptr)
+            ptr = pos[0] -2,pos[1] -1
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color[0]:
+                possible_pos.append(ptr)
+
+            ptr = pos[0] + 1 ,pos[1] + 2
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color[0]:
+                possible_pos.append(ptr)
+            ptr = pos[0] - 1 ,pos[1] + 2
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color[0]:
+                possible_pos.append(ptr)
+            ptr = pos[0] + 1 ,pos[1] - 2
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color[0]:
+                possible_pos.append(ptr)
+            ptr = pos[0] -1,pos[1] -2
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color[0]:
+                possible_pos.append(ptr)
+        elif pie[1] == 'K':
+            ptr = pos[0] + 1 ,pos[1]
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color:
+                possible_pos.append(ptr)
+            ptr = pos[0] + 1 ,pos[1] -1
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color:
+                possible_pos.append(ptr)
+            ptr = pos[0] +1 ,pos[1] + 1
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color:
+                possible_pos.append(ptr)
+            ptr = pos[0],pos[1] -1
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color:
+                possible_pos.append(ptr)
+
+            ptr = pos[0],pos[1] + 1
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color:
+                possible_pos.append(ptr)
+            ptr = pos[0] - 1 ,pos[1] - 1
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color:
+                possible_pos.append(ptr)
+            ptr = pos[0] -1 ,pos[1] + 0
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color:
+                possible_pos.append(ptr)
+            ptr = pos[0] -1,pos[1] + 1
+            piece = self.find_piece(ptr)
+            if piece == '-':
+                possible_pos.append(ptr)
+            elif piece[0] == self.player2.color:
+                possible_pos.append(ptr)
+        elif pie[1] == 'p':
+            ptr = pos
+            ptr = pos[0],pos[1] -1
+            piece = self.find_piece(ptr)
+            if piece[0] == '-':
+                possible_pos.append(ptr)
+            ptr = pos[0] + 1,pos[1] - 1
+            piece = self.find_piece(ptr)
+            if piece[0] == self.player2.color[0]:
+                possible_pos.append(ptr)
+            ptr = pos[0] -1 ,pos[1] -1
+            piece = self.find_piece(ptr)
+            if piece[0] == self.player2.color[0]:
+                possible_pos.append(ptr)
+            if pos[1] == 6:
+                ptr = pos[0],pos[1] -2
+                piece = self.find_piece(ptr)
+                if piece == '-':
+                    possible_pos.append(ptr)
         return possible_pos
     def get_player(self,color):
         # get the player object where the color of the player is color
@@ -141,7 +428,10 @@ class borad:
             print(*i)
     def find_piece(self, pos):
         # to find the piece in the state table at given position
-        return self.state_table[pos[0]][pos[1]]
+        try:
+            return self.state_table[pos[0]][pos[1]]
+        except:
+            return 'X'
     def recvieve_state_table(self):
 
         # program for reciving the state table
@@ -185,29 +475,32 @@ class borad:
             if self.turn == 1 and pos != None:
                 piece = self.find_piece(pos)
                 piece = self.state_table[pos[0]][pos[1]]
-                if piece == '-' and self.focus_pos != None:
+                if piece[0] == '-' and self.focus_pos != None:
                     # logic for changing the state of
                     temp = self.find_piece(self.focus_pos)
-                    self.state_table[self.focus_pos[0]][self.focus_pos[1]] = '-'
-                    self.state_table[pos[0]][pos[1]] = temp
-                    data_bytes = pickle.dumps(self.state_table)
-                    client_object.send('send_to_server')
-                    client_object.send(data_bytes)
-                    self.turn = 2
-                    self.focus_pos = None
-                    start = False
+                    possible_pos = self.generate_position(self.focus_pos,self.player1.color)
+                    if pos in possible_pos:
+                        self.state_table[self.focus_pos[0]][self.focus_pos[1]] = '-'
+                        self.state_table[pos[0]][pos[1]] = temp
+                        data_bytes = pickle.dumps(self.state_table)
+                        client_object.send('send_to_server')
+                        client_object.send(data_bytes)
+                        self.turn = 2
+                        self.focus_pos = None
+                        start = False
                 elif piece[0] == self.player2.color[0] and self.focus_pos != None:
                     # logic for capturing a piece
-                    self.change_piece_state(pos)
                     temp = self.find_piece(self.focus_pos)
-                    self.state_table[self.focus_pos[0]][self.focus_pos[1]] = '-'
-                    self.state_table[pos[0]][pos[1]] = temp
-                    data_bytes = pickle.dumps(self.state_table)
-                    client_object.send('send_to_server')
-                    client_object.send(data_bytes)
-                    self.turn = 2
-                    start = False
-                    self.focus_pos = None
+                    possible_pos = self.generate_position(self.focus_pos,self.player1.color)
+                    if pos in possible_pos:
+                        self.state_table[self.focus_pos[0]][self.focus_pos[1]] = '-'
+                        self.state_table[pos[0]][pos[1]] = temp
+                        data_bytes = pickle.dumps(self.state_table)
+                        client_object.send('send_to_server')
+                        client_object.send(data_bytes)
+                        self.turn = 2
+                        start = False
+                        self.focus_pos = None
 
                 elif piece[0] == self.player1.color[0]:
                     # logic for changing focus
